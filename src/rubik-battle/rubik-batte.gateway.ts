@@ -1,3 +1,5 @@
+import { OnModuleDestroy } from "@nestjs/common"
+import { JwtService } from "@nestjs/jwt"
 import {
   ConnectedSocket,
   MessageBody,
@@ -7,16 +9,15 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets"
-import { AuthService } from "src/auth/auth.service"
 import { Server, WebSocket } from "ws"
 
-@WebSocketGateway(80, {
+@WebSocketGateway({
   path: "/rubik-battle",
 })
 export class RubikBattleGateWay
   implements OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   @WebSocketServer()
   server: Server
@@ -26,21 +27,22 @@ export class RubikBattleGateWay
   notifyUserIn() {}
 
   handleConnection(client: WebSocket) {
-    this.clients.set(client, this.clients.size + 1)
-
-    client.send("connected to websocket server successfully")
+    client.send("connecting... waiting for authorization")
   }
 
-  handleDisconnect(client: WebSocket) {
-    console.log("client disconnected")
-    this.clients.delete(client)
-  }
+  handleDisconnect(client: WebSocket) {}
 
   @SubscribeMessage("authorize")
   handleAuthorize(
     @ConnectedSocket() client: WebSocket,
-    @MessageBody() message: string,
-  ) {}
+    @MessageBody() message: { accessToken: string },
+  ) {
+    const { accessToken } = message
+
+    const payload = this.jwtService.verify(accessToken, {
+      secret: process.env.JWT_SECRET,
+    })
+  }
 
   @SubscribeMessage("request-battle")
   handleRequestBattle(
@@ -59,4 +61,15 @@ export class RubikBattleGateWay
     @ConnectedSocket() client: WebSocket,
     @MessageBody() message: string,
   ) {}
+
+  @SubscribeMessage("finish-solve")
+  handleFinishSolve(
+    @ConnectedSocket() client: WebSocket,
+    @MessageBody() message: string,
+  ) {}
+}
+
+class RubikBattleClient extends WebSocket {
+  status: "connecting" | "connected" | "offline"
+  email: string
 }

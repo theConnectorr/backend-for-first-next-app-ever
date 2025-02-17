@@ -1,0 +1,105 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Res,
+} from "@nestjs/common"
+import { RubiksSolvesService } from "./rubiks-solves.service"
+import { Response } from "express"
+
+@Controller("rubiks-solves")
+export class RubiksSolvesController {
+  constructor(private readonly rubiksSolvesService: RubiksSolvesService) {}
+
+  @Get()
+  async findAll(@Res() res: Response) {
+    const allRubiksSolves = await this.rubiksSolvesService.findAll()
+
+    res.status(200).json({
+      success: true,
+      data: allRubiksSolves,
+    })
+  }
+
+  @Get(":id")
+  async findOne(@Param("id", ParseIntPipe) id: number, @Res() res: Response) {
+    const rubiksSolve = await this.rubiksSolvesService.findOne(id)
+
+    if (!rubiksSolve) {
+      res.status(404).json({
+        success: false,
+        message: "Rubiks solve not found",
+      })
+    }
+
+    res.status(200).json({
+      success: true,
+      data: rubiksSolve,
+    })
+  }
+
+  @Post()
+  async createOne(@Body() createRubiksSolveDto: any, @Res() res: Response) {
+    const newRubiksSolve =
+      await this.rubiksSolvesService.createOne(createRubiksSolveDto)
+
+    if (!newRubiksSolve) {
+      res.status(409).json({
+        success: false,
+        message: "Data provided conflicts with the server",
+      })
+    }
+
+    res.status(201).json({
+      success: true,
+      data: newRubiksSolve,
+    })
+  }
+
+  // needed for a type
+  @Put(":id")
+  async updateOne(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateRubiksSolveDto: any,
+    @Res() res: Response,
+  ) {
+    const updatedRubiksSolve = await this.rubiksSolvesService.updateOne(
+      id,
+      updateRubiksSolveDto,
+    )
+
+    if (!updateRubiksSolveDto) {
+      res.status(422).json({
+        success: false,
+        message: "Update body contains invalid data",
+      })
+    }
+
+    res.status(200).json({
+      success: true,
+      data: updatedRubiksSolve,
+    })
+  }
+
+  @Delete(":id")
+  async deleteOne(@Param("id", ParseIntPipe) id: number, @Res() res: Response) {
+    const deletedRubiksSolve = await this.rubiksSolvesService.deleteOne(id)
+
+    if (!deletedRubiksSolve) {
+      res.status(404).json({
+        success: false,
+        message: "Rubiks solve not found",
+      })
+    }
+
+    res.status(200).json({
+      success: true,
+      data: deletedRubiksSolve,
+    })
+  }
+}

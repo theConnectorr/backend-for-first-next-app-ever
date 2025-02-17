@@ -1,79 +1,70 @@
-import { Injectable } from "@nestjs/common"
+import { Inject, Injectable } from "@nestjs/common"
 import { CreateUserDto } from "./dtos/create-user.dto"
 import { UpdateUserDto } from "./dtos/update-user.dto"
+import { DATABASE_CONNECTION } from "src/database/database-connection"
+import { NeonHttpDatabase } from "drizzle-orm/neon-http"
+import * as schema from "src/database/schema"
+import { users } from "src/database/schema"
+import { eq } from "drizzle-orm"
 
 @Injectable()
 export class UsersService {
-  constructor() {}
+  constructor(
+    @Inject(DATABASE_CONNECTION)
+    private readonly database: NeonHttpDatabase<typeof schema>,
+  ) {}
 
-  users = [
-    {
-      id: 1,
-      email: "user1@amk.com",
-      roles: ["Admin"],
-      password: "user1",
-    },
-    {
-      id: 2,
-      email: "user2@amk.com",
-      roles: ["Normal"],
-      password: "user2",
-    },
-    {
-      id: 3,
-      email: "user3@amk.com",
-      roles: ["Normal"],
-      password: "user3",
-    },
-    {
-      id: 4,
-      email: "kylekhoitv@gmail.com",
-      roles: ["Normal"],
-      password: "user4",
-    },
-  ]
-
-  findAll() {
-    return this.users
+  async findAll() {
+    const allUsers = await this.database.select().from(users)
+    return allUsers
   }
 
-  findOne(id: number) {
-    return this.users.find((user) => user.id === id)
+  async findOne(id: number) {
+    const [user] = await this.database
+      .select()
+      .from(users)
+      .where(eq(users.id, id))
+      .limit(1)
+
+    return user
   }
 
-  findOneByEmail(email: string) {
-    return this.users.find((user) => user.email === email)
+  async findOneByEmail(email: string) {
+    const [user] = await this.database
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1)
+
+    return user
   }
 
-  createOne(createUserDto: CreateUserDto) {
-    const newUser = {
-      id: this.users.length + 1,
-      ...createUserDto,
-    }
-
-    this.users.push(newUser)
+  async createOne(createUserDto: CreateUserDto) {
+    const [newUser] = await this.database
+      .insert(users)
+      .values(createUserDto)
+      .onConflictDoNothing()
+      .returning()
 
     return newUser
   }
 
-  updateOne(id: number, updateUserDto: UpdateUserDto) {
-    const updatingUserIndex = this.users.findIndex((user) => user.id === id)
+  async updateOne(id: number, updateUserDto: UpdateUserDto) {
+    const [updatedUser] = await this.database
+      .update(users)
+      .set(updateUserDto)
+      .where(eq(users.id, id))
+      .returning()
 
-    if (updatingUserIndex === -1) throw new Error("User not found")
-
-    this.users[updatingUserIndex] = {
-      ...this.users[updatingUserIndex],
-      ...updateUserDto,
-    }
+    return updatedUser
   }
 
-  deleteOne(id: number) {
-    const deleteUser = this.users.find((user) => user.id === id)
+  async deleteOne(id: number) {
+    const [deletedUser] = await this.database
+      .delete(users)
+      .where(eq(users.id, id))
+      .returning()
 
-    if (deleteUser === undefined) throw new Error("User not found")
-
-    this.users = this.users.filter((user) => user.id !== deleteUser.id)
-
-    return deleteUser
+    return deletedUser
   }
 }

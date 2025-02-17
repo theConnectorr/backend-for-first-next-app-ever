@@ -15,7 +15,7 @@ export class LocalGuard implements CanActivate {
 
     const { email, password } = request.body
 
-    const user = this.usersService.findOneByEmail(email)
+    const user = await this.usersService.findOneByEmail(email)
 
     if (user === undefined)
       throw new UnauthorizedException("Credentials not match")
@@ -25,7 +25,6 @@ export class LocalGuard implements CanActivate {
 
     request.user = {
       email,
-      roles: user.roles,
       id: user.id,
     }
 
