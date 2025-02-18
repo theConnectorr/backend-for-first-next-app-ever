@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   Param,
   ParseIntPipe,
   Post,
@@ -12,8 +13,9 @@ import {
 } from "@nestjs/common"
 import { RubiksFoldersService } from "./rubiks-folders.service"
 import { Response } from "express"
+import { CreateRubiksFolderDto } from "src/database/dtos"
 
-@Controller()
+@Controller("rubiks-folders")
 export class RubiksFoldersController {
   constructor(private readonly rubiksFoldersService: RubiksFoldersService) {}
 
@@ -27,15 +29,18 @@ export class RubiksFoldersController {
     })
   }
 
-  @Get("id")
+  @Get(":id")
   async findOne(@Param("id", ParseIntPipe) id: number, @Res() res: Response) {
     const rubiksFolder = await this.rubiksFoldersService.findOne(id)
 
     if (!rubiksFolder) {
-      res.status(404).json({
-        success: false,
-        message: "Rubiks folder not found",
-      })
+      throw new HttpException(
+        {
+          success: false,
+          message: "Rubiks folder not found",
+        },
+        404,
+      )
     }
 
     res.status(200).json({
@@ -45,30 +50,33 @@ export class RubiksFoldersController {
   }
 
   @Post()
-  async createOne(@Body() createRubiksFolderDto: any, @Res() res: Response) {
-    const createdRubiksFolder = await this.rubiksFoldersService.createOne(
+  async createOne(
+    @Body() createRubiksFolderDto: CreateRubiksFolderDto,
+    @Res() res: Response,
+  ) {
+    const newRubiksFolder = await this.rubiksFoldersService.createOne(
       createRubiksFolderDto,
     )
 
-    if (!createdRubiksFolder) {
-      res.status(409).json({
-        success: false,
-        message: "Data provided conflicts with the server",
-      })
-    }
+    if (!newRubiksFolder)
+      throw new HttpException(
+        {
+          success: false,
+          message: "Data provided conflicts with the server",
+        },
+        409,
+      )
 
     res.status(201).json({
       success: true,
-      data: createdRubiksFolder,
+      data: newRubiksFolder,
     })
-
-    throw new UnauthorizedException({})
   }
 
   @Put(":id")
   async updateOne(
     @Param("id", ParseIntPipe) id: number,
-    @Body() updateRubiksFoldersDto: any,
+    @Body() updateRubiksFoldersDto: Partial<CreateRubiksFolderDto>,
     @Res() res: Response,
   ) {
     const updatedRubiksFolder = await this.rubiksFoldersService.updateOne(
@@ -76,12 +84,14 @@ export class RubiksFoldersController {
       updateRubiksFoldersDto,
     )
 
-    if (!updatedRubiksFolder) {
-      res.status(422).json({
-        success: false,
-        message: "Update body contains invalid data",
-      })
-    }
+    if (!updatedRubiksFolder)
+      throw new HttpException(
+        {
+          success: false,
+          message: "Folder not found",
+        },
+        404,
+      )
 
     res.status(200).json({
       success: true,
@@ -94,10 +104,13 @@ export class RubiksFoldersController {
     const deletedRubiksFolder = await this.rubiksFoldersService.deleteOne(id)
 
     if (!deletedRubiksFolder) {
-      res.status(404).json({
-        success: false,
-        message: "Rubiks folder not found",
-      })
+      throw new HttpException(
+        {
+          success: false,
+          message: "Rubiks folder not found",
+        },
+        404,
+      )
     }
 
     res.status(200).json({

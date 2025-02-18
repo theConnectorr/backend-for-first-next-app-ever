@@ -3,7 +3,6 @@ import {
   ExecutionContext,
   ForbiddenException,
   Inject,
-  UnauthorizedException,
 } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { JwtService, TokenExpiredError } from "@nestjs/jwt"
@@ -30,7 +29,7 @@ export class RefreshGuard implements CanActivate {
       .where(eq(schema.refreshTokens.token, refreshToken))
 
     if (!storedRefreshToken) {
-      throw new UnauthorizedException()
+      throw new ForbiddenException()
     }
 
     try {

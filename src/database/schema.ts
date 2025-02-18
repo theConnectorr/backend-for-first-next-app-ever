@@ -8,25 +8,25 @@ import {
 } from "drizzle-orm/pg-core"
 
 export const users = pgTable("users", {
-  id: serial().primaryKey(),
-  email: varchar({ length: 128 }).unique(),
-  roles: varchar({ length: 128 }).array(),
-  password: text(),
+  id: serial().primaryKey().notNull(),
+  email: varchar({ length: 128 }).unique().notNull(),
+  roles: varchar({ length: 128 }).array().notNull(),
+  password: text().notNull(),
 })
 
 export const rubiksFolders = pgTable("rubiksFolders", {
-  id: serial().primaryKey(),
-  name: varchar({ length: 128 }),
+  id: serial().primaryKey().notNull(),
+  name: varchar({ length: 128 }).notNull(),
   userId: integer()
     .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" })
     .notNull(),
 })
 
 export const rubiksSolves = pgTable("rubiksSolves", {
-  id: serial().primaryKey(),
-  solveTime: integer(),
-  cubeType: varchar({ length: 128 }),
-  scramble: varchar({ length: 128 }),
+  id: serial().primaryKey().notNull(),
+  solveTime: integer().notNull(),
+  cubeType: varchar({ length: 128 }).notNull(),
+  scramble: varchar({ length: 128 }).notNull(),
   when: timestamp().defaultNow(),
   rubiksFolderId: integer()
     .references(() => rubiksFolders.id, {
@@ -37,11 +37,11 @@ export const rubiksSolves = pgTable("rubiksSolves", {
 })
 
 export const refreshTokens = pgTable("refreshTokens", {
-  id: serial().primaryKey(),
+  id: serial().primaryKey().notNull(),
   userId: integer()
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  token: text(),
+  token: text().notNull(),
 })
 
 // export const users_rubiksFolders = relations(users, ({ many }) => ({

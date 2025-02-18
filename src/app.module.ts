@@ -7,6 +7,8 @@ import { UsersModule } from "./users/users.module"
 import { RubikBattleModule } from "./rubik-battle/rubik-battle.module"
 import { DatabaseModule } from "./database/database.module"
 import { ConfigModule } from "@nestjs/config"
+import { RubiksFoldersModule } from "./rubiks-folders/rubiks-folders.module"
+import { RubiksSolvesModule } from "./rubiks-solves/rubiks-solves.module"
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { ConfigModule } from "@nestjs/config"
     AuthModule,
     PassportModule,
     DatabaseModule,
+    RubiksFoldersModule,
+    RubiksSolvesModule,
     // RubikBattleModule,
   ],
   controllers: [AuthController],

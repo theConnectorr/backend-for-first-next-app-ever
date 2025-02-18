@@ -26,7 +26,9 @@ export class AuthService {
   }): Promise<{ accessToken: string; refreshToken: string }> {
     const user = userEmail
       ? await this.usersService.findOneByEmail(userEmail)
-      : await this.usersService.findOne(userId)
+      : userId
+        ? await this.usersService.findOne(userId)
+        : undefined
 
     if (!user) throw new NotFoundException("User not found")
 
@@ -56,7 +58,7 @@ export class AuthService {
     await this.database.insert(refreshTokens).values({
       userId: id,
       token: tokens.refreshToken,
-    } as any)
+    })
 
     return tokens
   }
@@ -70,7 +72,9 @@ export class AuthService {
   }): Promise<{ accessToken: string }> {
     const user = userEmail
       ? await this.usersService.findOneByEmail(userEmail)
-      : await this.usersService.findOne(userId)
+      : userId
+        ? await this.usersService.findOne(userId)
+        : undefined
 
     if (!user) throw new NotFoundException("User not found")
 

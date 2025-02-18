@@ -8,4 +8,4 @@ import { DatabaseModule } from "src/database/database.module"
   providers: [RubiksFoldersService],
   controllers: [RubiksFoldersController],
 })
-export class RubiksFolders {}
+export class RubiksFoldersModule {}

@@ -1,9 +1,10 @@
-import { Inject, Injectable } from "@nestjs/common"
+import { HttpException, Inject, Injectable } from "@nestjs/common"
 import { eq } from "drizzle-orm"
 import { NeonHttpDatabase } from "drizzle-orm/neon-http"
 import { DATABASE_CONNECTION } from "src/database/database-connection"
 import * as schema from "src/database/schema"
-import { rubiksFolders } from "src/database/schema"
+import { users, rubiksFolders } from "src/database/schema"
+import { CreateRubiksFolderDto } from "src/database/dtos"
 
 @Injectable()
 export class RubiksFoldersService {
@@ -27,8 +28,21 @@ export class RubiksFoldersService {
     return rubiksFolder
   }
 
-  // needed for a type
-  async createOne(createRubiksFolderDto: any) {
+  async createOne(createRubiksFolderDto: CreateRubiksFolderDto) {
+    const { userId } = createRubiksFolderDto
+
+    const [user] = await this.database
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1)
+
+    if (!user)
+      throw new HttpException(
+        { success: false, message: "User not found" },
+        404,
+      )
+
     const [createdRubiksFolder] = await this.database
       .insert(rubiksFolders)
       .values(createRubiksFolderDto)
@@ -38,8 +52,21 @@ export class RubiksFoldersService {
     return createdRubiksFolder
   }
 
-  // needed for a type
-  async updateOne(id: number, updateRubiksFoldersDto: any) {
+  async updateOne(
+    id: number,
+    updateRubiksFoldersDto: Partial<CreateRubiksFolderDto>,
+  ) {
+    const { userId } = updateRubiksFoldersDto
+    if (userId) {
+      throw new HttpException(
+        {
+          success: false,
+          message: "Invalid data",
+        },
+        422,
+      )
+    }
+
     const [updatedRubiksFolder] = await this.database
       .update(rubiksFolders)
       .set(updateRubiksFoldersDto)

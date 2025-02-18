@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   Param,
   ParseIntPipe,
   Post,
@@ -11,6 +12,7 @@ import {
 } from "@nestjs/common"
 import { RubiksSolvesService } from "./rubiks-solves.service"
 import { Response } from "express"
+import { CreateRubiksSolveDto } from "src/database/dtos"
 
 @Controller("rubiks-solves")
 export class RubiksSolvesController {
@@ -31,10 +33,13 @@ export class RubiksSolvesController {
     const rubiksSolve = await this.rubiksSolvesService.findOne(id)
 
     if (!rubiksSolve) {
-      res.status(404).json({
-        success: false,
-        message: "Rubiks solve not found",
-      })
+      throw new HttpException(
+        {
+          success: false,
+          message: "Rubiks solve not found",
+        },
+        404,
+      )
     }
 
     res.status(200).json({
@@ -44,16 +49,21 @@ export class RubiksSolvesController {
   }
 
   @Post()
-  async createOne(@Body() createRubiksSolveDto: any, @Res() res: Response) {
+  async createOne(
+    @Body() createRubiksSolveDto: CreateRubiksSolveDto,
+    @Res() res: Response,
+  ) {
     const newRubiksSolve =
       await this.rubiksSolvesService.createOne(createRubiksSolveDto)
 
-    if (!newRubiksSolve) {
-      res.status(409).json({
-        success: false,
-        message: "Data provided conflicts with the server",
-      })
-    }
+    if (!newRubiksSolve)
+      throw new HttpException(
+        {
+          success: false,
+          message: "Data provided conflicts with the server",
+        },
+        409,
+      )
 
     res.status(201).json({
       success: true,
@@ -61,11 +71,11 @@ export class RubiksSolvesController {
     })
   }
 
-  // needed for a type
   @Put(":id")
   async updateOne(
     @Param("id", ParseIntPipe) id: number,
-    @Body() updateRubiksSolveDto: any,
+    @Body()
+    updateRubiksSolveDto: Partial<CreateRubiksSolveDto>,
     @Res() res: Response,
   ) {
     const updatedRubiksSolve = await this.rubiksSolvesService.updateOne(
@@ -73,12 +83,14 @@ export class RubiksSolvesController {
       updateRubiksSolveDto,
     )
 
-    if (!updateRubiksSolveDto) {
-      res.status(422).json({
-        success: false,
-        message: "Update body contains invalid data",
-      })
-    }
+    if (!updateRubiksSolveDto)
+      throw new HttpException(
+        {
+          success: false,
+          message: "Rubiks solve not found",
+        },
+        404,
+      )
 
     res.status(200).json({
       success: true,
@@ -91,10 +103,13 @@ export class RubiksSolvesController {
     const deletedRubiksSolve = await this.rubiksSolvesService.deleteOne(id)
 
     if (!deletedRubiksSolve) {
-      res.status(404).json({
-        success: false,
-        message: "Rubiks solve not found",
-      })
+      throw new HttpException(
+        {
+          success: false,
+          message: "Rubiks solve not found",
+        },
+        404,
+      )
     }
 
     res.status(200).json({
