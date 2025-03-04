@@ -25,7 +25,6 @@ async function bootstrap() {
 
   app.useWebSocketAdapter(new WsAdapter(app))
   app.use(cookieParser())
-
   await app.listen(3123)
 
   if (module.hot) {

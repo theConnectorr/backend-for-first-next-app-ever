@@ -27,6 +27,7 @@ export const rubiksSolves = pgTable("rubiksSolves", {
   solveTime: integer().notNull(),
   cubeType: varchar({ length: 128 }).notNull(),
   scramble: varchar({ length: 128 }).notNull(),
+  penalty: varchar({ length: 128 }).notNull(),
   when: timestamp().defaultNow(),
   rubiksFolderId: integer()
     .references(() => rubiksFolders.id, {
@@ -37,9 +38,9 @@ export const rubiksSolves = pgTable("rubiksSolves", {
 })
 
 export const refreshTokens = pgTable("refreshTokens", {
-  id: serial().primaryKey().notNull(),
   userId: integer()
     .references(() => users.id, { onDelete: "cascade" })
+    .primaryKey()
     .notNull(),
   token: text().notNull(),
 })

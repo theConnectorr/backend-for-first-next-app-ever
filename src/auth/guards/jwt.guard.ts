@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common"
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { JwtService } from "@nestjs/jwt"
 
@@ -13,6 +18,7 @@ export class JwtGuard implements CanActivate {
     const request = context.switchToHttp().getRequest()
 
     const token = request.cookies["accessToken"]
+    if (token === undefined) throw new UnauthorizedException("No jwt provided")
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {

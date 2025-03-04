@@ -55,10 +55,16 @@ export class AuthService {
       ),
     }
 
-    await this.database.insert(refreshTokens).values({
-      userId: id,
-      token: tokens.refreshToken,
-    })
+    await this.database
+      .insert(refreshTokens)
+      .values({
+        userId: id,
+        token: tokens.refreshToken,
+      })
+      .onConflictDoUpdate({
+        target: refreshTokens.userId,
+        set: { token: tokens.refreshToken },
+      })
 
     return tokens
   }

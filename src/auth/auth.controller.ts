@@ -87,7 +87,6 @@ export class AuthController {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       maxAge: this.configService.getOrThrow<number>("REFRESH_TOKEN_MAX_AGE"),
-      path: "/auth/refresh",
     })
   }
 

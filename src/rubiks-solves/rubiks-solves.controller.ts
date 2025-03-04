@@ -6,8 +6,9 @@ import {
   HttpException,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
-  Put,
+  Query,
   Res,
 } from "@nestjs/common"
 import { RubiksSolvesService } from "./rubiks-solves.service"
@@ -19,8 +20,8 @@ export class RubiksSolvesController {
   constructor(private readonly rubiksSolvesService: RubiksSolvesService) {}
 
   @Get()
-  async findAll(@Res() res: Response) {
-    const allRubiksSolves = await this.rubiksSolvesService.findAll()
+  async findAll(@Query() query: any, @Res() res: Response) {
+    const allRubiksSolves = await this.rubiksSolvesService.findAll(query)
 
     res.status(200).json({
       success: true,
@@ -71,7 +72,7 @@ export class RubiksSolvesController {
     })
   }
 
-  @Put(":id")
+  @Patch(":id")
   async updateOne(
     @Param("id", ParseIntPipe) id: number,
     @Body()

@@ -1,29 +1,29 @@
 CREATE TABLE "refreshTokens" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"userId" integer NOT NULL,
-	"token" text
+	"userId" integer PRIMARY KEY NOT NULL,
+	"token" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "rubiksFolders" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"name" varchar(128),
+	"name" varchar(128) NOT NULL,
 	"userId" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "rubiksSolves" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"solveTime" integer,
-	"cubeType" varchar(128),
-	"scramble" varchar(128),
+	"solveTime" integer NOT NULL,
+	"cubeType" varchar(128) NOT NULL,
+	"scramble" varchar(128) NOT NULL,
+	"penalty" varchar(128) NOT NULL,
 	"when" timestamp DEFAULT now(),
 	"rubiksFolderId" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"email" varchar(128),
-	"roles" varchar(128)[],
-	"password" text,
+	"email" varchar(128) NOT NULL,
+	"roles" varchar(128)[] NOT NULL,
+	"password" text NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint

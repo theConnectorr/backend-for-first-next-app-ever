@@ -1,5 +1,5 @@
 {
-  "id": "8e9c7f29-63fa-415b-968e-c9202f4ef7e7",
+  "id": "04517867-210f-4521-b035-078116c4a19e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -8,23 +8,17 @@
       "name": "refreshTokens",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
         "userId": {
           "name": "userId",
           "type": "integer",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true
         },
         "token": {
           "name": "token",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -63,7 +57,7 @@
           "name": "name",
           "type": "varchar(128)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "userId": {
           "name": "userId",
@@ -108,19 +102,25 @@
           "name": "solveTime",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "cubeType": {
           "name": "cubeType",
           "type": "varchar(128)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "scramble": {
           "name": "scramble",
           "type": "varchar(128)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "penalty": {
+          "name": "penalty",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true
         },
         "when": {
           "name": "when",
@@ -172,19 +172,19 @@
           "name": "email",
           "type": "varchar(128)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "roles": {
           "name": "roles",
           "type": "varchar(128)[]",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "password": {
           "name": "password",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},

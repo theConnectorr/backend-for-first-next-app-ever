@@ -6,8 +6,10 @@ import {
   HttpException,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
+  Query,
   Res,
   UnauthorizedException,
 } from "@nestjs/common"
@@ -20,8 +22,8 @@ export class RubiksFoldersController {
   constructor(private readonly rubiksFoldersService: RubiksFoldersService) {}
 
   @Get()
-  async findAll(@Res() res: Response) {
-    const allRubiksFolders = await this.rubiksFoldersService.findAll()
+  async findAll(@Query() query: any, @Res() res: Response) {
+    const allRubiksFolders = await this.rubiksFoldersService.findAll(query)
 
     res.status(200).json({
       success: true,
@@ -73,7 +75,7 @@ export class RubiksFoldersController {
     })
   }
 
-  @Put(":id")
+  @Patch(":id")
   async updateOne(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateRubiksFoldersDto: Partial<CreateRubiksFolderDto>,

@@ -37,7 +37,6 @@ export class RefreshGuard implements CanActivate {
         secret: this.configService.getOrThrow<string>("REFRESH_TOKEN_SECRET"),
         ignoreExpiration: false,
       })
-
       request.user = { id: payload.id }
       return true
     } catch (e) {

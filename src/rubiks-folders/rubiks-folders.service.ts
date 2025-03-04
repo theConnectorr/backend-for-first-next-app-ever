@@ -13,8 +13,19 @@ export class RubiksFoldersService {
     private readonly database: NeonHttpDatabase<typeof schema>,
   ) {}
 
-  async findAll() {
-    const allRubiksFolders = await this.database.select().from(rubiksFolders)
+  async findAll(query: any) {
+    if (Object.entries(query).length === 0) {
+      const allRubiksFolders = await this.database.select().from(rubiksFolders)
+      return allRubiksFolders
+    }
+
+    const { userId, limit } = query
+
+    const allRubiksFolders = await this.database
+      .select()
+      .from(rubiksFolders)
+      .where(eq(rubiksFolders.userId, userId))
+      .limit(limit)
 
     return allRubiksFolders
   }

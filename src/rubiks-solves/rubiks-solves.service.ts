@@ -1,5 +1,5 @@
 import { HttpException, Inject, Injectable } from "@nestjs/common"
-import { eq } from "drizzle-orm"
+import { and, asc, desc, eq } from "drizzle-orm"
 import { NeonHttpDatabase } from "drizzle-orm/neon-http"
 import { DATABASE_CONNECTION } from "src/database/database-connection"
 import { CreateRubiksSolveDto } from "src/database/dtos"
@@ -12,10 +12,25 @@ export class RubiksSolvesService {
     @Inject(DATABASE_CONNECTION)
     private readonly database: NeonHttpDatabase<typeof schema>,
   ) {}
-  async findAll() {
-    const allRubiksSolves = await this.database.select().from(rubiksSolves)
 
-    return allRubiksSolves
+  async findAll(query: any) {
+    if (Object.keys(query).length === 0) {
+      const allRubiksSolvesQuery = await this.database
+        .select()
+        .from(rubiksSolves)
+
+      return allRubiksSolvesQuery
+    }
+    const { folderId, limit } = query
+
+    const allRubiksSolvesQuery = await this.database
+      .select()
+      .from(rubiksSolves)
+      .orderBy(desc(rubiksSolves.when))
+      .where(eq(rubiksSolves.rubiksFolderId, +folderId))
+      .limit(+limit)
+
+    return allRubiksSolvesQuery
   }
 
   async findOne(id: number) {
@@ -25,6 +40,17 @@ export class RubiksSolvesService {
       .where(eq(rubiksSolves.id, id))
 
     return rubiksSolve
+  }
+
+  async findSome(rubiksFolderId: number, limit: number) {
+    const [someRubiksSolves] = await this.database
+      .select()
+      .from(rubiksSolves)
+      .orderBy(desc(rubiksSolves.id))
+      .where(eq(rubiksSolves.rubiksFolderId, rubiksFolderId))
+      .limit(limit)
+
+    return someRubiksSolves
   }
 
   async createOne(createRubiksSolveDto: CreateRubiksSolveDto) {
